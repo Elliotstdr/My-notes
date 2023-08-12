@@ -3,7 +3,7 @@ import "./SheetInterface.scss"
 import ToolBar from '../ToolBar/ToolBar';
 import axios from 'axios';
 import { editSheetList, getDefaultNode, successToast } from '../../Services/api';
-import NoteInterface from '../../NoteInterface/NoteInterface';
+import NoteInterface from '../NoteInterface/NoteInterface';
 import { useSelector, useDispatch } from "react-redux";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";

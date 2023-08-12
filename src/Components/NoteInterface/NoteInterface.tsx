@@ -3,10 +3,10 @@ import "./NoteInterface.scss"
 import { BiPencil } from "react-icons/bi";
 import { Editor } from "primereact/editor";
 import { Button } from "primereact/button";
-import InputAndButton from '../Utils/InputAndButton/InputAndButton';
-import ValidationDialog from '../Utils/ValidationDialog/ValidationDialog';
+import InputAndButton from '../../Utils/InputAndButton/InputAndButton';
+import ValidationDialog from '../../Utils/ValidationDialog/ValidationDialog';
 import axios from 'axios';
-import { editNoteList } from '../Services/api';
+import { editNoteList } from '../../Services/api';
 import { useSelector, useDispatch } from "react-redux";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
