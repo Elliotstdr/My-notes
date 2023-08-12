@@ -1,0 +1,44 @@
+@import url("https://fonts.cdnfonts.com/css/menzanine-2");
+@import url("https://fonts.cdnfonts.com/css/dilgante-rocks");
+@import url("https://fonts.cdnfonts.com/css/randome");
+
+.App {
+  text-align: center;
+  display: flex;
+  min-height: 100vh;
+  color: black;
+  background: #f2f7fa;
+  &__main {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    margin-left: 2rem;
+    font-family: "Randome", sans-serif;
+    color: #ea6137 !important;
+    font-size: 1.5rem;
+  }
+  .p-button {
+    border: none;
+    color: black;
+    background-color: transparent !important;
+    font-size: 0.9rem;
+    &.validation {
+      border: 1px solid rgb(34, 197, 94) !important;
+      margin-left: 0.5rem !important;
+    }
+    &:focus {
+      box-shadow: none;
+    }
+    &:hover {
+      background: transparent !important;
+      border-color: white !important;
+      color: #00255d !important;
+    }
+  }
+  input {
+    font-size: 1rem;
+  }
+}
