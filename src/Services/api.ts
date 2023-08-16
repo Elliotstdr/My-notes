@@ -1,18 +1,19 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-export const useFetchGet = (url: string) => {
+export const useFetchGet = (url: string, token: string | null = null) => {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<any>("");
   const [loaded, setLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    url &&
+    token && url && url !== "" &&
       axios
         .get(`${process.env.REACT_APP_BASE_URL}${url}`, {
           headers:  
               {
                 accept: "application/json",
+                Authorization: `Bearer ${token}`
               },
         })
         .then((response: any) => {
@@ -21,7 +22,7 @@ export const useFetchGet = (url: string) => {
         .catch((error: any) => setError(error.message))
         .finally(() => setLoaded(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url]);
+  }, [url, token]);
   return { data, error, loaded };
 };
 

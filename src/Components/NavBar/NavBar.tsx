@@ -12,6 +12,7 @@ const NavBar = () => {
   const [nodes, setNodes] = useState<Array<TreeNode>>([]);
   const [activeCreatePage, setActiveCreatePage] = useState<boolean | undefined>(false)
   const [titleValue, setTitleValue] = useState<string>("")
+  const auth = useSelector((state: RootState) => state.auth);
   const data = useSelector((state: RootState) => state.data);
   const dispatch = useDispatch();
   const updateData = (value: Partial<DataState>) => {
@@ -57,7 +58,7 @@ const NavBar = () => {
     const body: Page = { label: titleValue }
     setTitleValue("")
     axios
-      .post(`${process.env.REACT_APP_BASE_URL}/page`, body)
+      .post(`${process.env.REACT_APP_BASE_URL}/page`, body, auth.header)
       .then((res) => {
         data.pages && updateData({ pages: [...data.pages, res.data.page] })
       })
@@ -94,7 +95,7 @@ const NavBar = () => {
 
   const changePageOrder = (pages: Array<Page>) => {
     axios
-      .post(`${process.env.REACT_APP_BASE_URL}/page/reorder`, pages)
+      .post(`${process.env.REACT_APP_BASE_URL}/page/reorder`, pages, auth.header)
       .then((res) => {
         updateData({ pages: res.data.pages })
         data.toast && successToast("Ordre des pages mis à jour", data.toast)
@@ -104,7 +105,7 @@ const NavBar = () => {
 
   const changeSheetOrder = (sheets: Array<Sheet>) => {
     axios
-      .post(`${process.env.REACT_APP_BASE_URL}/sheet/reorder`, sheets)
+      .post(`${process.env.REACT_APP_BASE_URL}/sheet/reorder`, sheets, auth.header)
       .then((res) => {
         const otherSheets = data.sheets?.filter((sheet: Sheet) =>
           !res.data.sheets.some((x: Sheet) => x._id === sheet._id

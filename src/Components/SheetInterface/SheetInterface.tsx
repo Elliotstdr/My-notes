@@ -26,6 +26,7 @@ const SheetInterface = () => {
       },
     }
   ])
+  const auth = useSelector((state: RootState) => state.auth);
   const data = useSelector((state: RootState) => state.data);
   const dispatch = useDispatch();
   const updateData = (value: Partial<DataState>) => {
@@ -38,7 +39,7 @@ const SheetInterface = () => {
 
     const body: Sheet = { label: newTitle, page: sheetPage.page }
     axios
-      .put(`${process.env.REACT_APP_BASE_URL}/sheet/${data.selectedNode?._id}`, body)
+      .put(`${process.env.REACT_APP_BASE_URL}/sheet/${data.selectedNode?._id}`, body, auth.header)
       .then((res) => {
         if (data.sheets) {
           const newSheetList: Array<Sheet> = editSheetList(data.sheets, sheetPage, res.data.sheet)
@@ -57,7 +58,7 @@ const SheetInterface = () => {
 
     const body: Note = { label: newNoteName, content: "", sheet: sheetPage }
     axios
-      .post(`${process.env.REACT_APP_BASE_URL}/note`, body)
+      .post(`${process.env.REACT_APP_BASE_URL}/note`, body, auth.header)
       .then((res) => {
         if (data.notes) {
           updateData({ notes: [...data.notes, res.data.note] })
@@ -70,7 +71,7 @@ const SheetInterface = () => {
     if (!data.selectedNode) return
 
     axios
-      .delete(`${process.env.REACT_APP_BASE_URL}/sheet/${data.selectedNode._id}`)
+      .delete(`${process.env.REACT_APP_BASE_URL}/sheet/${data.selectedNode._id}`, auth.header)
       .then(() => {
         if (data.sheets) {
           updateData({
@@ -128,7 +129,7 @@ const SheetInterface = () => {
 
   const updateNotesOrder = (notes: Array<Note>) => {
     axios
-      .post(`${process.env.REACT_APP_BASE_URL}/note/reorder`, notes)
+      .post(`${process.env.REACT_APP_BASE_URL}/note/reorder`, notes, auth.header)
       .then((res) => {
         const otherNotes = data.notes?.filter((note: Note) =>
           !res.data.notes.some((x: Sheet) => x._id === note._id

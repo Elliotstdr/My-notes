@@ -8,6 +8,7 @@ import { useSelector, useDispatch } from "react-redux";
 const PageInterface = () => {
   const [newTitle, setNewTitle] = useState<string>("");
   const [newSheetName, setNewSheetName] = useState<string>("");
+  const auth = useSelector((state: RootState) => state.auth);
   const data = useSelector((state: RootState) => state.data);
   const dispatch = useDispatch();
   const updateData = (value: Partial<DataState>) => {
@@ -19,7 +20,7 @@ const PageInterface = () => {
 
     const body: Page = { label: newTitle }
     axios
-      .put(`${process.env.REACT_APP_BASE_URL}/page/${data.selectedNode._id}`, body)
+      .put(`${process.env.REACT_APP_BASE_URL}/page/${data.selectedNode._id}`, body, auth.header)
       .then((res) => {
         if (data.pages && data.selectedNode) {
           const newPageList: Array<Page> = editPageList(data.pages, data.selectedNode, res.data.page)
@@ -42,7 +43,7 @@ const PageInterface = () => {
     }
 
     axios
-      .post(`${process.env.REACT_APP_BASE_URL}/sheet`, body)
+      .post(`${process.env.REACT_APP_BASE_URL}/sheet`, body, auth.header)
       .then((res) => {
         if (data.sheets) {
           updateData({ sheets: [...data.sheets, res.data.sheet] })
@@ -55,7 +56,7 @@ const PageInterface = () => {
     if (!data.selectedNode) return
 
     axios
-      .delete(`${process.env.REACT_APP_BASE_URL}/page/${data.selectedNode._id}`)
+      .delete(`${process.env.REACT_APP_BASE_URL}/page/${data.selectedNode._id}`, auth.header)
       .then(() => {
         if (data.pages && data.selectedNode) {
           updateData({

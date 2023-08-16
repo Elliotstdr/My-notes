@@ -23,6 +23,7 @@ const NoteInterface = (props: Props) => {
   const [newTitle, setNewTitle] = useState<string>("")
   const [newContent, setNewContent] = useState<string>("")
   const [idModifyingNote, setIdModifyingNote] = useState<string | undefined>("");
+  const auth = useSelector((state: RootState) => state.auth);
   const data = useSelector((state: RootState) => state.data);
   const dispatch = useDispatch();
   const updateData = (value: Partial<DataState>) => {
@@ -33,7 +34,7 @@ const NoteInterface = (props: Props) => {
     if (newTitle === "") return
     const body: Note = { ...props.note, label: newTitle }
     axios
-      .put(`${process.env.REACT_APP_BASE_URL}/note/${props.note._id}`, body)
+      .put(`${process.env.REACT_APP_BASE_URL}/note/${props.note._id}`, body, auth.header)
       .then((res) => {
         if (data.notes) {
           const newNoteList: Array<Note> = editNoteList(data.notes, props.note, res.data.note)
@@ -48,7 +49,7 @@ const NoteInterface = (props: Props) => {
     const body: Note = { ...props.note, content: newContent }
 
     axios
-      .put(`${process.env.REACT_APP_BASE_URL}/note/${props.note._id}`, body)
+      .put(`${process.env.REACT_APP_BASE_URL}/note/${props.note._id}`, body, auth.header)
       .then((res) => {
         if (data.notes) {
           const newNoteList: Array<Note> = editNoteList(data.notes, props.note, res.data.note)
@@ -61,7 +62,7 @@ const NoteInterface = (props: Props) => {
   const deleteNote = () => {
     if (!data.notes) return
     axios
-      .delete(`${process.env.REACT_APP_BASE_URL}/note/${props.note._id}`)
+      .delete(`${process.env.REACT_APP_BASE_URL}/note/${props.note._id}`, auth.header)
       .then(() => {
         if (data.notes) {
           updateData({

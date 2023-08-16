@@ -1,0 +1,74 @@
+.login_container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+  }
+  &_title {
+    z-index: 100;
+    margin-bottom: 1rem;
+  }
+  .login__form {
+    z-index: 100;
+    &__field {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      h4 {
+        margin-bottom: 0.5rem;
+      }
+      input {
+        max-width: 20rem;
+      }
+    }
+    &__button {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      .bouton .loaderContainer {
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        .loaderContainer__loader,
+        .loaderContainer__loader::after {
+          width: 2rem;
+          height: 2rem;
+        }
+      }
+    }
+    .equal {
+      border: 1px solid green;
+      border-radius: 6px;
+      input:hover,
+      input:focus {
+        border: 1px solid green;
+        box-shadow: none;
+      }
+    }
+    .nonequal {
+      border: 1px solid red;
+      border-radius: 6px;
+      input:hover,
+      input:focus {
+        border: 1px solid red;
+        box-shadow: none;
+      }
+    }
+    .forgot_password {
+      cursor: pointer;
+      text-decoration: underline;
+      text-align: right;
+      font-size: 0.8rem;
+      padding: 0.5rem;
+    }
+  }
+}

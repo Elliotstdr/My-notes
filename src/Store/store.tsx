@@ -3,19 +3,22 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import dataReducer from "./Reducers/dataReducer";
+import authReducer from "./Reducers/authReducer";
 
 export interface RootState {
-  data: DataState;
+  data: DataState,
+  auth: AuthState
 }
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["data"],
+  whitelist: ["data", "auth"],
 };
 
 const rootReducer = combineReducers<RootState>({
   data: dataReducer,
+  auth: authReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
