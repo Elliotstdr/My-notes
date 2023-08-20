@@ -12,19 +12,19 @@ const SheetInterface = () => {
   const [newTitle, setNewTitle] = useState<string>("");
   const [newNoteName, setNewNoteName] = useState<string>("");
   const [notesList, setNotesListe] = useState<Array<Note>>([
-    {
-      _id: "0",
-      label: "Error",
-      content: "Error",
-      sheet: {
-        _id: "0",
-        label: "Error",
-        page: {
-          _id: "0",
-          label: "Error",
-        },
-      },
-    }
+    // {
+    //   _id: "0",
+    //   label: "Error",
+    //   content: "Error",
+    //   sheet: {
+    //     _id: "0",
+    //     label: "Error",
+    //     page: {
+    //       _id: "0",
+    //       label: "Error",
+    //     },
+    //   },
+    // }
   ])
   const auth = useSelector((state: RootState) => state.auth);
   const data = useSelector((state: RootState) => state.data);

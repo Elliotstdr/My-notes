@@ -2,10 +2,14 @@
   display: flex;
   width: 100%;
   padding: 0.75rem 0rem 0.75rem 1rem;
-  justify-content: left;
+  // justify-content: left;
   margin-top: 1rem;
   background-color: white;
   border-radius: 10px;
   width: 95%;
   box-shadow: 5px 7px 10px 0px rgba(0, 0, 0, 0.1);
+  h1 {
+    display: flex;
+    align-self: center;
+  }
 }

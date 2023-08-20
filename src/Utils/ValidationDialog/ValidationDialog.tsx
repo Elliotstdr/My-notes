@@ -5,7 +5,7 @@ import { Dialog } from "primereact/dialog";
 
 interface Props {
   isVisible: boolean | undefined;
-  setIsVisible: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
   deleteFunction: () => void
   element: string
 }

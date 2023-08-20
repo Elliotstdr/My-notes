@@ -7,10 +7,11 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import InputAndButton from "../../Utils/InputAndButton/InputAndButton";
 import { successToast } from "../../Services/api";
+import { logoNames } from "../../Services/data";
 
 const NavBar = () => {
   const [nodes, setNodes] = useState<Array<TreeNode>>([]);
-  const [activeCreatePage, setActiveCreatePage] = useState<boolean | undefined>(false)
+  const [activeCreatePage, setActiveCreatePage] = useState<boolean>(false)
   const [titleValue, setTitleValue] = useState<string>("")
   const auth = useSelector((state: RootState) => state.auth);
   const data = useSelector((state: RootState) => state.data);
@@ -32,7 +33,9 @@ const NavBar = () => {
         .map((page: Page, key: Key) => {
           const pageChildren = data.sheets?.filter((sheet: Sheet) => {
             if (sheet.page._id === page._id) {
-              sheet.icon = "pi pi-file";
+              sheet.icon = logoNames.includes(sheet.label.toLowerCase())
+                ? `devicon-${sheet.label.toLowerCase()}-original`
+                : `pi pi-file`;
               return true;
             }
             return false
@@ -46,7 +49,9 @@ const NavBar = () => {
             key: key,
             _id: page._id,
             label: page.label,
-            icon: "pi pi-folder",
+            icon: logoNames.includes(page.label.toLowerCase())
+              ? `devicon-${page.label.toLowerCase()}-original`
+              : `pi pi-folder`,
             children: pageChildren
           }
         })
@@ -60,7 +65,10 @@ const NavBar = () => {
     axios
       .post(`${process.env.REACT_APP_BASE_URL}/page`, body, auth.header)
       .then((res) => {
-        data.pages && updateData({ pages: [...data.pages, res.data.page] })
+        data.pages && updateData({
+          pages: [...data.pages, res.data.page],
+          selectedNode: { ...res.data.page, children: [] }
+        })
       })
       .catch((err) => console.log(err))
   }
@@ -136,6 +144,7 @@ const NavBar = () => {
               <InputAndButton
                 setIsModifying={setActiveCreatePage}
                 setNewString={setTitleValue}
+                newString={titleValue}
                 onValid={createPage}
               ></InputAndButton>
             }

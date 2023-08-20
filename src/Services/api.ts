@@ -86,3 +86,20 @@ export const getDefaultNode = (pages: Array<Page>) => {
     children: true
   }
 }
+
+export const useOutsideAlerter = (ref: any, command: React.Dispatch<React.SetStateAction<boolean>>) => {
+  useEffect(() => {
+    function handleClickOutside(event: any) {
+      if (ref.current && !ref.current.contains(event.target)) {
+        command(false)
+      }
+    }
+    // Bind the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+    // eslint-disable-next-line
+  }, [ref])
+};

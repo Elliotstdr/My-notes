@@ -15,9 +15,10 @@ interface Props {
 }
 
 const ToolBar = (props: Props) => {
-  const [modifyElement, setModifyElement] = useState<boolean | undefined>(false);
-  const [deleteElement, setDeleteElement] = useState<boolean | undefined>(false);
-  const [createElement, setCreateElement] = useState<boolean | undefined>(false);
+  const [modifyElement, setModifyElement] = useState<boolean>(false);
+  const [deleteElement, setDeleteElement] = useState<boolean>(false);
+  const [createElement, setCreateElement] = useState<boolean>(false);
+
   return (
     <div className="toolbar">
       {/* Modify title button */}

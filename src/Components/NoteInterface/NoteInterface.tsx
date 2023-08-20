@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import "./NoteInterface.scss"
-import { BiPencil } from "react-icons/bi";
 import { Editor } from "primereact/editor";
 import { Button } from "primereact/button";
+import { Menu } from "primereact/menu";
 import InputAndButton from '../../Utils/InputAndButton/InputAndButton';
 import ValidationDialog from '../../Utils/ValidationDialog/ValidationDialog';
 import axios from 'axios';
-import { editNoteList } from '../../Services/api';
+import { editNoteList, useOutsideAlerter } from '../../Services/api';
 import { useSelector, useDispatch } from "react-redux";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -18,17 +18,21 @@ interface Props {
 }
 
 const NoteInterface = (props: Props) => {
-  const [isModifyingTitle, setIsModifyingTitle] = useState<boolean | undefined>(false)
-  const [isDeleting, setIsDeleting] = useState<boolean | undefined>(false)
+  const [isModifyingTitle, setIsModifyingTitle] = useState<boolean>(false)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
+  const [showMenu, setShowMenu] = useState<boolean>(false)
   const [newTitle, setNewTitle] = useState<string>("")
   const [newContent, setNewContent] = useState<string>("")
   const [idModifyingNote, setIdModifyingNote] = useState<string | undefined>("");
+  const wrapperRef = useRef(null);
   const auth = useSelector((state: RootState) => state.auth);
   const data = useSelector((state: RootState) => state.data);
   const dispatch = useDispatch();
   const updateData = (value: Partial<DataState>) => {
     dispatch({ type: "UPDATE_DATA", value });
   };
+
+  useOutsideAlerter(wrapperRef, setShowMenu);
 
   const modifyTitle = () => {
     if (newTitle === "") return
@@ -81,23 +85,47 @@ const NoteInterface = (props: Props) => {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const model = [
+    {
+      label: "Modifier le titre",
+      icon: "pi pi-pencil",
+      command: () => setIsModifyingTitle(!isModifyingTitle)
+    },
+    {
+      label: "Modifier le contenu",
+      icon: "pi pi-book",
+      command: () => setIdModifyingNote(props.note._id)
+    },
+    {
+      label: "Supprimer la note",
+      icon: "pi pi-trash",
+      command: () => setIsDeleting(true)
+    }
+  ]
+
   return (
     <div className="sheetinterface__notes__note" ref={setNodeRef} style={style} {...attributes}>
       <div className='dragndrop' {...listeners} style={{ cursor: "move", height: "5px" }}></div>
-      <div className="note__title">
-        {isModifyingTitle ?
-          (
-            <InputAndButton
-              setIsModifying={setIsModifyingTitle}
-              setNewString={setNewTitle}
-              onValid={modifyTitle}
-            ></InputAndButton>
-          ) : (
-            <>
+      <div className="note__top">
+        <div className="note__top__title">
+          {isModifyingTitle ?
+            (
+              <InputAndButton
+                setIsModifying={setIsModifyingTitle}
+                setNewString={setNewTitle}
+                onValid={modifyTitle}
+              ></InputAndButton>
+            ) : (
               <h3>{props.note.label}</h3>
-              <BiPencil onClick={() => setIsModifyingTitle(true)}></BiPencil>
-            </>
-          )}
+            )}
+        </div>
+        <div
+          className='pi pi-ellipsis-v note__top__edit'
+          onClick={() => setShowMenu(!showMenu)}
+          ref={wrapperRef}
+        >
+          {showMenu && <Menu model={model}></Menu>}
+        </div>
       </div>
       <div
         className="note__content"
@@ -105,7 +133,6 @@ const NoteInterface = (props: Props) => {
       >
         {parse(props.note.content)}
       </div>
-      <div className='pi pi-times-circle remove__icon' onClick={() => setIsDeleting(true)}></div>
 
       {idModifyingNote !== "" && (
         <div

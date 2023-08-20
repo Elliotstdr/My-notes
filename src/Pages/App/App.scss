@@ -1,3 +1,4 @@
+@use "src/index.scss" as c;
 @import url("https://fonts.cdnfonts.com/css/menzanine-2");
 @import url("https://fonts.cdnfonts.com/css/dilgante-rocks");
 @import url("https://fonts.cdnfonts.com/css/randome");
@@ -9,6 +10,7 @@
   color: black;
   background: #f2f7fa;
   &__main {
+    margin-left: 16rem;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -17,7 +19,7 @@
   h1 {
     margin-left: 2rem;
     font-family: "Randome", sans-serif;
-    color: #ea6137 !important;
+    color: c.$main-color !important;
     font-size: 1.5rem;
   }
   .p-button {
@@ -35,7 +37,7 @@
     &:hover {
       background: transparent !important;
       border-color: white !important;
-      color: #00255d !important;
+      color: c.$main-color !important;
     }
   }
   input {

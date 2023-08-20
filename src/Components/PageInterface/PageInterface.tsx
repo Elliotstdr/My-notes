@@ -46,7 +46,10 @@ const PageInterface = () => {
       .post(`${process.env.REACT_APP_BASE_URL}/sheet`, body, auth.header)
       .then((res) => {
         if (data.sheets) {
-          updateData({ sheets: [...data.sheets, res.data.sheet] })
+          updateData({
+            sheets: [...data.sheets, res.data.sheet],
+            selectedNode: { ...res.data.sheet }
+          })
         }
       })
       .catch((err) => console.log(err))
