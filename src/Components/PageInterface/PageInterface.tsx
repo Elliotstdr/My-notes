@@ -73,6 +73,7 @@ const PageInterface = () => {
 
   return (
     <div className="pageinterface">
+      <h1>{data.selectedNode?.label}</h1>
       <ToolBar
         setNewTitle={setNewTitle}
         setNewElementName={setNewSheetName}
@@ -82,7 +83,6 @@ const PageInterface = () => {
         names={["Supprimer la page", "Créer une feuille"]}
         element="page"
       ></ToolBar>
-      <h1>{data.selectedNode?.label}</h1>
     </div>
   );
 };

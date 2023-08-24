@@ -11,21 +11,7 @@ import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 const SheetInterface = () => {
   const [newTitle, setNewTitle] = useState<string>("");
   const [newNoteName, setNewNoteName] = useState<string>("");
-  const [notesList, setNotesListe] = useState<Array<Note>>([
-    // {
-    //   _id: "0",
-    //   label: "Error",
-    //   content: "Error",
-    //   sheet: {
-    //     _id: "0",
-    //     label: "Error",
-    //     page: {
-    //       _id: "0",
-    //       label: "Error",
-    //     },
-    //   },
-    // }
-  ])
+  const [notesList, setNotesListe] = useState<Array<Note>>([])
   const auth = useSelector((state: RootState) => state.auth);
   const data = useSelector((state: RootState) => state.data);
   const dispatch = useDispatch();
@@ -97,8 +83,8 @@ const SheetInterface = () => {
 
   const itemsOrders = useMemo(
     () => notesList.map((item) => {
-      if (item.order) {
-        return item.order
+      if (item.order !== undefined) {
+        return item.order + 1
       } else {
         return 0
       }
@@ -111,10 +97,10 @@ const SheetInterface = () => {
 
     if (over && active.id !== over.id) {
       const oldIndex = notesList?.findIndex(
-        (item) => item.order === active.id
+        (item) => item.order === active.id - 1
       );
       const newIndex = notesList?.findIndex(
-        (item) => item.order === over.id
+        (item) => item.order === over.id - 1
       );
       const newArray = arrayMove(notesList, oldIndex, newIndex);
 
@@ -147,6 +133,7 @@ const SheetInterface = () => {
   return (
     <div className="sheetinterface">
       <div className="sheetinterface__top">
+        <h1>{data.selectedNode?.label}</h1>
         <ToolBar
           setNewTitle={setNewTitle}
           setNewElementName={setNewNoteName}
@@ -156,7 +143,6 @@ const SheetInterface = () => {
           names={["Supprimer la feuille", "Créer une note"]}
           element='sheet'
         ></ToolBar>
-        <h1>{data.selectedNode?.label}</h1>
       </div>
       <div className="sheetinterface__notes">
         <DndContext
@@ -171,7 +157,7 @@ const SheetInterface = () => {
                 <NoteInterface
                   key={key}
                   note={note}
-                  sortId={note.order ? note.order : 0}
+                  sortId={note.order !== undefined ? note.order + 1 : 0}
                 ></NoteInterface>
               ))}
           </SortableContext>

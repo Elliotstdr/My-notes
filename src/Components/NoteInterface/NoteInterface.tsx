@@ -105,7 +105,7 @@ const NoteInterface = (props: Props) => {
 
   return (
     <div className="sheetinterface__notes__note" ref={setNodeRef} style={style} {...attributes}>
-      <div className='dragndrop' {...listeners} style={{ cursor: "move", height: "5px" }}></div>
+      <div className='dragndrop' {...listeners} style={{ cursor: "move", height: "10px" }}></div>
       <div className="note__top">
         <div className="note__top__title">
           {isModifyingTitle ?
