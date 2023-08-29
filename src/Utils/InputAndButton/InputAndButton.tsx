@@ -26,7 +26,11 @@ const InputAndButton = (props: Props) => {
         autoFocus
       />
       <div className={
-        props.newString && `devicon-${props.newString.toLowerCase()}-original icon-proposition`}>
+        props.newString && `
+          devicon-${props.newString.toLowerCase()}-original 
+          devicon-${props.newString.toLowerCase()}-plain 
+          icon-proposition
+        `}>
       </div>
     </div>
   );

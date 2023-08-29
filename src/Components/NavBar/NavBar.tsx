@@ -34,7 +34,7 @@ const NavBar = () => {
           const pageChildren = data.sheets?.filter((sheet: Sheet) => {
             if (sheet.page._id === page._id) {
               sheet.icon = logoNames.includes(sheet.label.toLowerCase())
-                ? `devicon-${sheet.label.toLowerCase()}-original`
+                ? `devicon-${sheet.label.toLowerCase()}-original devicon-${sheet.label.toLowerCase()}-plain`
                 : `pi pi-file`;
               return true;
             }
@@ -50,7 +50,7 @@ const NavBar = () => {
             _id: page._id,
             label: page.label,
             icon: logoNames.includes(page.label.toLowerCase())
-              ? `devicon-${page.label.toLowerCase()}-original`
+              ? `devicon-${page.label.toLowerCase()}-original devicon-${page.label.toLowerCase()}-plain`
               : `pi pi-folder`,
             children: pageChildren
           }
