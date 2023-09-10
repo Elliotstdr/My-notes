@@ -55,7 +55,6 @@ const NoteInterface = (props: Props) => {
 
   const modifyContent = () => {
     if (newContent === "") return
-    console.log(newContent)
     const body: Note = { ...props.note, content: newContent }
 
     axios
