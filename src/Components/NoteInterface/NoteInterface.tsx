@@ -34,6 +34,11 @@ const NoteInterface = (props: Props) => {
 
   useOutsideAlerter(wrapperRef, setShowMenu);
 
+  const testref = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    testref.current && testref.current.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const modifyTitle = () => {
     if (newTitle === "") return
     const body: Note = { ...props.note, label: newTitle }
@@ -104,37 +109,31 @@ const NoteInterface = (props: Props) => {
   ]
 
   useEffect(() => {
-    addClip();
+    const codeBoxes = document.querySelectorAll('pre.ql-syntax');
+
+    codeBoxes.forEach((x) => {
+      const existingDiv = x.querySelector('.clip.pi.pi-copy');
+
+      if (!existingDiv) {
+        const element = document.createElement('div');
+        element.className = 'clip pi pi-copy';
+        element.addEventListener('click', (e) => {
+          e.stopPropagation();
+
+          const preElement = (e.target as HTMLElement).closest('pre.ql-syntax');
+          if (preElement) {
+            const textToCopy = preElement.textContent || '';
+            navigator.clipboard.writeText(textToCopy)
+            data.toast && successToast("Élément copié avec succès", data.toast);
+          }
+        });
+
+        x.appendChild(element);
+      }
+    });
     // eslint-disable-next-line
   }, [props.note.content]);
 
-  useEffect(() => {
-    addClip();
-    // eslint-disable-next-line
-  }, []);
-
-  const addClip = () => {
-    const codeBoxes = document.querySelectorAll('pre.ql-syntax');
-
-    const element = document.createElement('div');
-    element.className = 'clip pi pi-copy';
-    element.addEventListener('click', (e) => {
-      e.stopPropagation();
-
-      const preElement = (e.target as HTMLElement).closest('pre.ql-syntax');
-      if (preElement) {
-        const textToCopy = preElement.textContent || '';
-        navigator.clipboard.writeText(textToCopy)
-        data.toast && successToast("Élément copié avec succès", data.toast)
-      }
-    });
-
-    codeBoxes.forEach((x) => {
-      if (x.childNodes.length === 1) {
-        x.appendChild(element)
-      }
-    });
-  }
 
   return (
     <div className="sheetinterface__notes__note" ref={setNodeRef} style={style} {...attributes}>
@@ -163,6 +162,7 @@ const NoteInterface = (props: Props) => {
       <div
         className="note__content"
         onClick={() => setIdModifyingNote(props.note._id)}
+        ref={testref}
       >
         {parse(props.note.content)}
       </div>

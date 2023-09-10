@@ -40,12 +40,14 @@
       margin: 0.5rem 0;
     }
     pre.ql-syntax {
-      padding: 0.5rem;
+      padding: 0.5rem 2rem 0.5rem 0.5rem;
       border-radius: 5px;
       background-color: #23241f;
       color: #f8f8f2;
-      overflow: visible;
+      overflow: hidden;
       position: relative;
+      white-space: nowrap;
+      text-overflow: ellipsis;
       .clip.pi.pi-copy {
         position: absolute;
         top: 0.5rem;
