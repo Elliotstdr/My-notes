@@ -104,6 +104,16 @@ const NoteInterface = (props: Props) => {
   ]
 
   useEffect(() => {
+    addClip();
+    // eslint-disable-next-line
+  }, [props.note.content]);
+
+  useEffect(() => {
+    addClip();
+    // eslint-disable-next-line
+  }, []);
+
+  const addClip = () => {
     const codeBoxes = document.querySelectorAll('pre.ql-syntax');
 
     const element = document.createElement('div');
@@ -124,8 +134,7 @@ const NoteInterface = (props: Props) => {
         x.appendChild(element)
       }
     });
-    // eslint-disable-next-line
-  }, [props.note.content]);
+  }
 
   return (
     <div className="sheetinterface__notes__note" ref={setNodeRef} style={style} {...attributes}>
