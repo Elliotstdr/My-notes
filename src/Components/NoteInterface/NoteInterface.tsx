@@ -152,7 +152,8 @@ const NoteInterface = (props: Props) => {
               setIdModifyingNote("");
               modifyContent()
             }}>
-              <div className="pi pi-save"></div>
+              Save
+              {/* <div className="pi pi-save"></div> */}
             </Button>
           </div>
         </div>

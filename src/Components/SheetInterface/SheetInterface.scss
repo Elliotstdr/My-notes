@@ -7,10 +7,10 @@
     padding: 4rem 0rem 5rem 0rem;
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(auto-fit, 20rem);
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, 35rem);
+    gap: 2rem 1rem;
     grid-auto-rows: auto;
-    padding: 3rem 5rem;
+    padding: 3rem 2rem;
     justify-content: center;
   }
   &__top {

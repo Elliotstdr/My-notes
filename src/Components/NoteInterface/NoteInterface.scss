@@ -36,6 +36,16 @@
     height: 19rem;
     padding: 0.5rem 1rem;
     overflow: auto;
+    p {
+      margin: 0.5rem 0;
+    }
+    pre.ql-syntax {
+      padding: 0.5rem;
+      border-radius: 5px;
+      background-color: #23241f;
+      color: #f8f8f2;
+      overflow: visible;
+    }
   }
 }
 .dialog__note {
@@ -55,7 +65,6 @@
     pointer-events: auto;
     max-height: 90%;
     max-width: 60%;
-    position: relative;
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     border: 0 none;
@@ -64,14 +73,18 @@
       .p-editor-content {
         background-color: white;
         min-height: 15rem;
+        border-radius: 6px 6px 0 0;
       }
     }
     .save {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      height: 1rem;
-      font-size: 0.9rem;
+      display: flex;
+      justify-content: center;
+      background-color: white !important;
+      border-radius: 0 0 6px 6px;
+      &:hover {
+        background-color: green !important;
+        color: white !important;
+      }
     }
   }
 }
@@ -79,7 +92,8 @@
 .ql-font,
 // .ql-color,
 // .ql-background,
-.ql-image,
-.ql-code-block {
+.ql-image
+// .ql-code-block
+{
   display: none !important;
 }
