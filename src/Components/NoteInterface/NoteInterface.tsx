@@ -55,6 +55,7 @@ const NoteInterface = (props: Props) => {
 
   const modifyContent = () => {
     if (newContent === "") return
+    console.log(newContent)
     const body: Note = { ...props.note, content: newContent }
 
     axios
@@ -134,6 +135,11 @@ const NoteInterface = (props: Props) => {
     // eslint-disable-next-line
   }, [props.note.content]);
 
+  const modules = {
+    clipboard: {
+      matchVisual: false
+    }
+  }
 
   return (
     <div className="sheetinterface__notes__note" ref={setNodeRef} style={style} {...attributes}>
@@ -180,6 +186,7 @@ const NoteInterface = (props: Props) => {
             <Editor
               value={props.note ? props.note.content : "Undefined"}
               onTextChange={(e) => setNewContent(e.htmlValue ? e.htmlValue : "")}
+              modules={modules}
             ></Editor>
             <Button className="save" onClick={() => {
               setIdModifyingNote("");
