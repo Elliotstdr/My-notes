@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import "./NoteInterface.scss"
 import { Editor } from "primereact/editor";
 import { Button } from "primereact/button";
@@ -6,7 +6,7 @@ import { Menu } from "primereact/menu";
 import InputAndButton from '../../Utils/InputAndButton/InputAndButton';
 import ValidationDialog from '../../Utils/ValidationDialog/ValidationDialog';
 import axios from 'axios';
-import { editNoteList, useOutsideAlerter } from '../../Services/api';
+import { editNoteList, successToast, useOutsideAlerter } from '../../Services/api';
 import { useSelector, useDispatch } from "react-redux";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -102,6 +102,30 @@ const NoteInterface = (props: Props) => {
       command: () => setIsDeleting(true)
     }
   ]
+
+  useEffect(() => {
+    const codeBoxes = document.querySelectorAll('pre.ql-syntax');
+
+    const element = document.createElement('div');
+    element.className = 'clip pi pi-copy';
+    element.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      const preElement = (e.target as HTMLElement).closest('pre.ql-syntax');
+      if (preElement) {
+        const textToCopy = preElement.textContent || '';
+        navigator.clipboard.writeText(textToCopy)
+        data.toast && successToast("Élément copié avec succès", data.toast)
+      }
+    });
+
+    codeBoxes.forEach((x) => {
+      if (x.childNodes.length === 1) {
+        x.appendChild(element)
+      }
+    });
+    // eslint-disable-next-line
+  }, [props.note.content]);
 
   return (
     <div className="sheetinterface__notes__note" ref={setNodeRef} style={style} {...attributes}>
