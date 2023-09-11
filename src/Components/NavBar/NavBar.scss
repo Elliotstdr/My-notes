@@ -4,18 +4,30 @@
   background-color: #f9fbfc;
   border-radius: 6px;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
-  transition: all 0.5s ease-in-out;
-  width: 16rem;
+  width: fit-content;
   text-align: left;
   position: relative;
+  width: 13.5rem;
+  transition: all 0.5s ease-in-out;
   &.hidden {
     width: 3rem;
+    .p-tree {
+      width: 0;
+    }
+    .navbar__buttons .createButton {
+      opacity: 0;
+      width: 0;
+      visibility: hidden;
+    }
   }
   &__buttons {
     display: flex;
     flex-direction: column;
     margin: 1rem 0.5rem 0 1rem;
     .createButton {
+      visibility: visible;
+      opacity: 1;
+      transition: all 0.5s ease-in-out;
       width: 8rem;
       padding: 0.5rem 0.25rem 0.5rem 0.5rem;
       margin-bottom: 0.5rem;
@@ -35,6 +47,7 @@
     display: none;
   }
   .p-tree {
+    transition: all 0.5s ease-in-out;
     scrollbar-width: none;
     overflow-y: scroll;
     font-size: 1.1rem;
@@ -42,6 +55,7 @@
     padding: 0.5rem 0 0.5rem 0.5rem;
     border: none !important;
     background: #f9fbfc !important;
+    width: 13.5rem;
     span {
       display: -webkit-box;
       -webkit-box-orient: vertical;
@@ -65,16 +79,11 @@
       }
     }
   }
-  .pi-angle-double {
-    &-left {
-      position: absolute;
-      right: 1rem;
-      top: 1rem;
-      cursor: pointer;
-    }
-    &-right {
-      cursor: pointer;
-      padding: 1rem;
-    }
+  .pi-angle-double-left,
+  .pi-angle-double-right {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    cursor: pointer;
   }
 }

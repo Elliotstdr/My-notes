@@ -7,6 +7,7 @@
   position: relative;
   box-shadow: 6px 5px 15px -10px rgba(0, 0, 0, 0.4);
   background-color: white !important;
+  width: 48%;
   .note__top {
     display: flex;
     justify-content: space-between;
@@ -32,7 +33,6 @@
     }
   }
   .note__content {
-    // text-align: justify;
     height: 19rem;
     padding: 0.5rem 1rem;
     overflow: auto;

@@ -6,10 +6,9 @@
   &__notes {
     padding: 4rem 0rem 5rem 0rem;
     width: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, 35rem);
-    gap: 2rem 1rem;
-    grid-auto-rows: auto;
+    grid-gap: 2rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
     padding: 3rem 2rem;
     justify-content: center;
   }
@@ -22,5 +21,14 @@
     border-radius: 10px;
     width: 95%;
     box-shadow: 5px 7px 10px 0px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 1050px) {
+  .sheetinterface__notes {
+    flex-direction: column;
+    &__note {
+      width: 100% !important;
+    }
   }
 }

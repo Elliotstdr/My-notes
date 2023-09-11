@@ -130,33 +130,31 @@ const NavBar = () => {
 
   return (
     <div className={`navbar ${!isVisible && "hidden"}`}>
+      <div className="navbar__buttons">
+        <Button
+          className="createButton"
+          onClick={() => setActiveCreatePage(!activeCreatePage)}
+        >
+          <div className="pi pi-plus"></div>
+          {"Create Page"}
+        </Button>
+        {activeCreatePage &&
+          <InputAndButton
+            setIsModifying={setActiveCreatePage}
+            setNewString={setTitleValue}
+            newString={titleValue}
+            onValid={createPage}
+          ></InputAndButton>
+        }
+      </div>
+      <Tree
+        value={nodes}
+        onNodeClick={(e) => updateData({ selectedNode: e.node })}
+        onDragDrop={(e) => onDDPage(e)}
+        dragdropScope="demo"
+      />
       {isVisible ? (
-        <>
-          <div className="navbar__buttons">
-            <Button
-              className="createButton"
-              onClick={() => setActiveCreatePage(!activeCreatePage)}
-            >
-              <div className="pi pi-plus"></div>
-              {"Create Page"}
-            </Button>
-            {activeCreatePage &&
-              <InputAndButton
-                setIsModifying={setActiveCreatePage}
-                setNewString={setTitleValue}
-                newString={titleValue}
-                onValid={createPage}
-              ></InputAndButton>
-            }
-          </div>
-          <Tree
-            value={nodes}
-            onNodeClick={(e) => updateData({ selectedNode: e.node })}
-            onDragDrop={(e) => onDDPage(e)}
-            dragdropScope="demo"
-          />
-          <div className="pi pi-angle-double-left" onClick={() => setIsVisible(false)}></div>
-        </>
+        <div className="pi pi-angle-double-left" onClick={() => setIsVisible(false)}></div>
       ) : (<div className="pi pi-angle-double-right" onClick={() => setIsVisible(true)}></div>
       )}
     </div>
