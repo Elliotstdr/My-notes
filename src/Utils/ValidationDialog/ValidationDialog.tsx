@@ -17,6 +17,7 @@ const ValidationDialog = (props: Props) => {
       visible={props.isVisible}
       style={{ width: "fit-content" }}
       onHide={() => props.setIsVisible(false)}
+      onClick={(e) => e.stopPropagation()}
     >
       <div className='validationdialog'>
         <span>{`Etes vous sur de vouloir supprimer cette ${props.element} ?`}</span>

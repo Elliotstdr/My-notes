@@ -6,15 +6,17 @@ interface Props {
   setNewString: React.Dispatch<React.SetStateAction<string>>
   newString?: string
   setIsModifying: React.Dispatch<React.SetStateAction<boolean>>
-  onValid: () => void
+  onValid: () => void;
+  width?: string,
 }
 
 const InputAndButton = (props: Props) => {
   const wrapperRef = useRef(null);
   useOutsideAlerter(wrapperRef, props.setIsModifying);
   return (
-    <div className='inputandbutton' ref={wrapperRef}>
+    <div className='inputandbutton' ref={wrapperRef} onClick={(e) => e.stopPropagation()}>
       <input
+        style={{ width: props.width ? props.width : "" }}
         type="text"
         onChange={(e) => props.setNewString(e.target.value)}
         onKeyDown={(e) => {

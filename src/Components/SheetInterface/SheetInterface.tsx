@@ -2,7 +2,7 @@ import React, { Key, useEffect, useMemo, useState } from 'react';
 import "./SheetInterface.scss"
 import ToolBar from '../ToolBar/ToolBar';
 import axios from 'axios';
-import { editSheetList, getDefaultNode, successToast } from '../../Services/api';
+import { editSheetList, getDefaultNode, handleDuplicates, successToast } from '../../Services/api';
 import NoteInterface from '../NoteInterface/NoteInterface';
 import { useSelector, useDispatch } from "react-redux";
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -20,15 +20,18 @@ const SheetInterface = () => {
   };
 
   const putSheet = () => {
-    const sheetPage = data.sheets?.find((sheet: Sheet) => sheet._id === data.selectedNode._id)
-    if (!data.selectedNode || newTitle === "" || !sheetPage) return
+    const currentSheet = data.sheets?.find((sheet: Sheet) => sheet.id === data.selectedNode.id)
+    if (!data.selectedNode || newTitle === "" || !currentSheet || !data.sheets) return
 
-    const body: Sheet = { label: newTitle, page: sheetPage.page }
+    const body: Sheet = {
+      label: handleDuplicates(newTitle, data.sheets.filter((x) => x.page.id === currentSheet.page.id)),
+      page: currentSheet.page
+    }
     axios
-      .put(`${process.env.REACT_APP_BASE_URL}/sheet/${data.selectedNode?._id}`, body, auth.header)
+      .put(`${process.env.REACT_APP_BASE_URL}/sheet/${data.selectedNode?.id}`, body, auth.header)
       .then((res) => {
         if (data.sheets) {
-          const newSheetList: Array<Sheet> = editSheetList(data.sheets, sheetPage, res.data.sheet)
+          const newSheetList: Array<Sheet> = editSheetList(data.sheets, currentSheet, res.data.sheet)
           updateData({
             sheets: newSheetList,
             selectedNode: res.data.sheet
@@ -39,7 +42,7 @@ const SheetInterface = () => {
   };
 
   const createNewNote = () => {
-    const sheetPage = data.sheets?.find((sheet: Sheet) => sheet._id === data.selectedNode._id)
+    const sheetPage = data.sheets?.find((sheet: Sheet) => sheet.id === data.selectedNode.id)
     if (!data.selectedNode || newNoteName === "" || !sheetPage) return
 
     const body: Note = { label: newNoteName, content: "", sheet: sheetPage }
@@ -57,11 +60,11 @@ const SheetInterface = () => {
     if (!data.selectedNode) return
 
     axios
-      .delete(`${process.env.REACT_APP_BASE_URL}/sheet/${data.selectedNode._id}`, auth.header)
+      .delete(`${process.env.REACT_APP_BASE_URL}/sheet/${data.selectedNode.id}`, auth.header)
       .then(() => {
         if (data.sheets) {
           updateData({
-            sheets: data.sheets.filter((sheet: Sheet) => sheet._id !== data.selectedNode?._id),
+            sheets: data.sheets.filter((sheet: Sheet) => sheet.id !== data.selectedNode?.id),
             selectedNode: data.pages ? getDefaultNode(data.pages) : {}
           })
         }
@@ -71,7 +74,7 @@ const SheetInterface = () => {
 
   useEffect(() => {
     data.notes && setNotesListe(data.notes
-      .filter((note: Note) => note.sheet._id === data.selectedNode?._id)
+      .filter((note: Note) => note.sheet.id === data.selectedNode?.id)
       .sort((a, b) => {
         if (b.order !== undefined && a.order !== undefined) {
           return a.order - b.order
@@ -118,7 +121,7 @@ const SheetInterface = () => {
       .post(`${process.env.REACT_APP_BASE_URL}/note/reorder`, notes, auth.header)
       .then((res) => {
         const otherNotes = data.notes?.filter((note: Note) =>
-          !res.data.notes.some((x: Sheet) => x._id === note._id
+          !res.data.notes.some((x: Sheet) => x.id === note.id
           ))
         if (otherNotes) {
           updateData({ notes: [...otherNotes, ...res.data.notes] })

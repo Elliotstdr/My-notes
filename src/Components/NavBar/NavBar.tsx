@@ -6,10 +6,12 @@ import "./NavBar.scss"
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import InputAndButton from "../../Utils/InputAndButton/InputAndButton";
-import { successToast } from "../../Services/api";
+import { handleDuplicates, successToast } from "../../Services/api";
 import { logoNames } from "../../Services/data";
+import CustomNode from "../CustomNode/CustomNode";
 
 const NavBar = () => {
+  const [expandedKeys, setExpandedKeys] = useState<any>({});
   const [nodes, setNodes] = useState<Array<TreeNode>>([]);
   const [activeCreatePage, setActiveCreatePage] = useState<boolean>(false)
   const [titleValue, setTitleValue] = useState<string>("")
@@ -31,8 +33,8 @@ const NavBar = () => {
           return 0
         })
         .map((page: Page, key: Key) => {
-          const pageChildren = data.sheets?.filter((sheet: Sheet) => {
-            if (sheet.page._id === page._id) {
+          let pageChildren = data.sheets?.filter((sheet: Sheet) => {
+            if (sheet.page.id === page.id) {
               sheet.icon = logoNames.includes(sheet.label.toLowerCase())
                 ? `devicon-${sheet.label.toLowerCase()}-original devicon-${sheet.label.toLowerCase()}-plain`
                 : `pi pi-file`;
@@ -47,7 +49,7 @@ const NavBar = () => {
           })
           return {
             key: key,
-            _id: page._id,
+            id: page.id,
             label: page.label,
             icon: logoNames.includes(page.label.toLowerCase())
               ? `devicon-${page.label.toLowerCase()}-original devicon-${page.label.toLowerCase()}-plain`
@@ -60,15 +62,32 @@ const NavBar = () => {
   }, [data.pages, data.sheets])
 
   const createPage = () => {
-    const body: Page = { label: titleValue }
+    if (!data.pages) return;
+
+    const body: Page = { label: handleDuplicates(titleValue, data.pages) }
     setTitleValue("")
     axios
       .post(`${process.env.REACT_APP_BASE_URL}/page`, body, auth.header)
-      .then((res) => {
-        data.pages && updateData({
-          pages: [...data.pages, res.data.page],
-          selectedNode: { ...res.data.page, children: [] }
-        })
+      .then((resPage) => {
+        const body: Sheet = {
+          label: "Index",
+          page: resPage.data.page
+        }
+        axios
+          .post(`${process.env.REACT_APP_BASE_URL}/sheet`, body, auth.header)
+          .then((resSheet) => {
+            if (data.sheets && data.pages) {
+              updateData({
+                sheets: [...data.sheets, resSheet.data.sheet],
+                pages: [...data.pages, resPage.data.page],
+                selectedNode: { ...resSheet.data.sheet }
+              })
+              let newExpandKey: any = {}
+              newExpandKey[data.pages.length.toString()] = true
+              setExpandedKeys(newExpandKey)
+            }
+          })
+          .catch((err) => console.log(err))
       })
       .catch((err) => console.log(err))
   }
@@ -77,11 +96,12 @@ const NavBar = () => {
     const dragNode: any = event.dragNode;
     const dropNode: any = event.dropNode;
     const dropValues: any = event.value;
+
     if (dragNode.page) {
-      if (dragNode.page._id === dropNode._id) {
+      if (dragNode.page.id === dropNode.id) {
         const sheets: Array<Sheet> = dropNode.children.map((x: Sheet, key: number) => {
           return {
-            _id: x._id,
+            id: x.id,
             label: x.label,
             page: x.page,
             order: key
@@ -90,9 +110,9 @@ const NavBar = () => {
         changeSheetOrder(sheets)
       }
     } else if (!dropNode) {
-      const pages: Array<Page> = dropValues.map((x: Page, key: number) => {
+      const pages: Array<Page> = dropValues.map((x: TreeNode, key: number) => {
         return {
-          _id: x._id,
+          id: x.id,
           label: x.label,
           order: key
         }
@@ -116,7 +136,7 @@ const NavBar = () => {
       .post(`${process.env.REACT_APP_BASE_URL}/sheet/reorder`, sheets, auth.header)
       .then((res) => {
         const otherSheets = data.sheets?.filter((sheet: Sheet) =>
-          !res.data.sheets.some((x: Sheet) => x._id === sheet._id
+          !res.data.sheets.some((x: Sheet) => x.id === sheet.id
           ))
         if (otherSheets) {
           updateData({ sheets: [...otherSheets, ...res.data.sheets] })
@@ -126,6 +146,10 @@ const NavBar = () => {
         data.toast && successToast("Ordre des feuilles mis à jour", data.toast)
       })
       .catch((err) => console.log(err))
+  }
+
+  const customNodeTemplate = (node: TreeNode) => {
+    return <CustomNode node={node}></CustomNode>
   }
 
   return (
@@ -149,9 +173,30 @@ const NavBar = () => {
       </div>
       <Tree
         value={nodes}
-        onNodeClick={(e) => updateData({ selectedNode: e.node })}
+        onNodeClick={(e) => {
+          if (e.node.children) {
+            updateData({ selectedNode: e.node.children[0] });
+            let tempArray = { ...expandedKeys }
+            if (typeof e.node.key !== 'undefined' && e.node.key !== undefined) {
+              if (
+                tempArray[e.node.key.toString()] &&
+                !(e.originalEvent.target as HTMLElement)?.className?.includes("menu")
+              ) {
+                delete tempArray[e.node.key.toString()];
+              } else {
+                tempArray[e.node.key.toString()] = true
+              }
+            }
+            setExpandedKeys(tempArray)
+          } else {
+            updateData({ selectedNode: e.node });
+          }
+        }}
         onDragDrop={(e) => onDDPage(e)}
         dragdropScope="demo"
+        nodeTemplate={customNodeTemplate}
+        expandedKeys={expandedKeys}
+        onToggle={(e) => setExpandedKeys(e.value)}
       />
       {isVisible ? (
         <div className="pi pi-angle-double-left" onClick={() => setIsVisible(false)}></div>

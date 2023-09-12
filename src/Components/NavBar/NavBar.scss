@@ -37,7 +37,6 @@
     }
     input {
       width: 10rem;
-      // margin-left: 0.5rem;
     }
     .pi-plus {
       margin-right: 0.25rem;
@@ -66,7 +65,7 @@
       cursor: pointer;
       &-children {
         cursor: pointer;
-        padding-left: 3rem;
+        padding-left: 2rem;
         button {
           display: none;
         }
@@ -85,5 +84,20 @@
     right: 1rem;
     top: 1rem;
     cursor: pointer;
+  }
+  .p-treenode-icon.pi.pi-file {
+    min-width: 16px;
+  }
+  .p-treenode-dragover {
+    background-color: unset !important;
+  }
+  .p-tree-toggler {
+    width: 1rem !important;
+    height: 1rem !important;
+    .p-icon {
+      width: 0.7rem !important;
+      height: 0.7rem !important;
+      font-weight: bold;
+    }
   }
 }

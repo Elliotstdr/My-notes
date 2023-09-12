@@ -43,7 +43,7 @@ const NoteInterface = (props: Props) => {
     if (newTitle === "") return
     const body: Note = { ...props.note, label: newTitle }
     axios
-      .put(`${process.env.REACT_APP_BASE_URL}/note/${props.note._id}`, body, auth.header)
+      .put(`${process.env.REACT_APP_BASE_URL}/note/${props.note.id}`, body, auth.header)
       .then((res) => {
         if (data.notes) {
           const newNoteList: Array<Note> = editNoteList(data.notes, props.note, res.data.note)
@@ -58,7 +58,7 @@ const NoteInterface = (props: Props) => {
     const body: Note = { ...props.note, content: newContent }
 
     axios
-      .put(`${process.env.REACT_APP_BASE_URL}/note/${props.note._id}`, body, auth.header)
+      .put(`${process.env.REACT_APP_BASE_URL}/note/${props.note.id}`, body, auth.header)
       .then((res) => {
         if (data.notes) {
           const newNoteList: Array<Note> = editNoteList(data.notes, props.note, res.data.note)
@@ -71,11 +71,11 @@ const NoteInterface = (props: Props) => {
   const deleteNote = () => {
     if (!data.notes) return
     axios
-      .delete(`${process.env.REACT_APP_BASE_URL}/note/${props.note._id}`, auth.header)
+      .delete(`${process.env.REACT_APP_BASE_URL}/note/${props.note.id}`, auth.header)
       .then(() => {
         if (data.notes) {
           updateData({
-            notes: data.notes.filter((note: Note) => note._id !== props.note?._id)
+            notes: data.notes.filter((note: Note) => note.id !== props.note?.id)
           })
         }
       })
@@ -99,7 +99,7 @@ const NoteInterface = (props: Props) => {
     {
       label: "Modifier le contenu",
       icon: "pi pi-book",
-      command: () => setIdModifyingNote(props.note._id)
+      command: () => setIdModifyingNote(props.note.id)
     },
     {
       label: "Supprimer la note",
@@ -166,7 +166,7 @@ const NoteInterface = (props: Props) => {
       </div>
       <div
         className="note__content"
-        onClick={() => setIdModifyingNote(props.note._id)}
+        onClick={() => setIdModifyingNote(props.note.id)}
         ref={testref}
       >
         {parse(props.note.content)}

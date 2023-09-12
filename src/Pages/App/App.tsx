@@ -3,7 +3,6 @@ import './App.scss';
 import NavBar from '../../Components/NavBar/NavBar';
 import { getDefaultNode, useFetchGet } from '../../Services/api';
 import SheetInterface from '../../Components/SheetInterface/SheetInterface';
-import PageInterface from '../../Components/PageInterface/PageInterface';
 import { useSelector, useDispatch } from "react-redux";
 import Loader from '../../Utils/Loader/loader';
 import { Toast } from "primereact/toast";
@@ -85,11 +84,10 @@ const App = () => {
             <>
               <NavBar />
               <div className="App__main">
-                {data.selectedNode.children ? (
-                  <PageInterface />
-                ) : (noteData.loaded &&
+                {!data.selectedNode.children &&
                   <SheetInterface />
-                )}</div>
+                }
+              </div>
             </>
             : <Loader></Loader>
           : <Login></Login>

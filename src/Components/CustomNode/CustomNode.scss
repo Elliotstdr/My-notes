@@ -1,0 +1,21 @@
+.customNode {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-grow: 1;
+  padding-right: 0.5rem;
+  position: relative;
+  &__label {
+    &.selected {
+      color: #226597 !important;
+      font-weight: bold;
+    }
+  }
+  &__menu {
+    .p-menu {
+      z-index: 1000;
+      position: fixed;
+      width: 13.5rem;
+    }
+  }
+}

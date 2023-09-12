@@ -26,10 +26,10 @@ export const useFetchGet = (url: string, token: string | null = null) => {
   return { data, error, loaded };
 };
 
-export const editPageList = (arrayElement: Array<Page>, currentPage: childNode, newElement: Page) => {
+export const editPageList = (arrayElement: Array<Page>, currentPageId: string, newElement: Page) => {
   const tempPages: Array<Page> | null = [...arrayElement]
   tempPages.forEach((page: Page) => { 
-    if (page._id === currentPage._id) { 
+    if (page.id === currentPageId) { 
       page.label = newElement.label 
     } 
   })
@@ -39,7 +39,7 @@ export const editPageList = (arrayElement: Array<Page>, currentPage: childNode, 
 export const editSheetList = (arrayElement: Array<Sheet>, currentSheet: Sheet | undefined, newElement: Sheet) => {
   const tempSheets: Array<Sheet> | null = [...arrayElement]
   tempSheets.forEach((sheet: Sheet) => { 
-    if (sheet._id === currentSheet?._id) { 
+    if (sheet.id === currentSheet?.id) { 
       sheet.label = newElement.label 
     } 
   })
@@ -49,7 +49,7 @@ export const editSheetList = (arrayElement: Array<Sheet>, currentSheet: Sheet | 
 export const editNoteList = (arrayElement: Array<Note>, currentNote: Note | undefined, newElement: Note) => {
   const tempNotes: Array<Note> | null = [...arrayElement]
   tempNotes.forEach((note: Note) => { 
-    if (note._id === currentNote?._id) { 
+    if (note.id === currentNote?.id) { 
       note.label = newElement.label;
       note.content = newElement.content
     }
@@ -103,3 +103,16 @@ export const useOutsideAlerter = (ref: any, command: React.Dispatch<React.SetSta
     // eslint-disable-next-line
   }, [ref])
 };
+
+export const handleDuplicates = (title: string, data: Array<Page|Sheet>) => {
+  let titreUnique = title;
+  let numSuffix = 1;
+
+  // eslint-disable-next-line
+  while (data.some((x: Page|Sheet) => x.label === titreUnique)) {
+    titreUnique = `${title}-${numSuffix}`;
+    numSuffix++;
+  }
+
+  return titreUnique;
+}
