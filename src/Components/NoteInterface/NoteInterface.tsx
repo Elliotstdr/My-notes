@@ -34,9 +34,9 @@ const NoteInterface = (props: Props) => {
 
   useOutsideAlerter(wrapperRef, setShowMenu);
 
-  const testref = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    testref.current && testref.current.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollRef.current && scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const modifyTitle = () => {
@@ -167,7 +167,7 @@ const NoteInterface = (props: Props) => {
       <div
         className="note__content"
         onClick={() => setIdModifyingNote(props.note.id)}
-        ref={testref}
+        ref={scrollRef}
       >
         {parse(props.note.content)}
       </div>
@@ -192,7 +192,6 @@ const NoteInterface = (props: Props) => {
               modifyContent()
             }}>
               Save
-              {/* <div className="pi pi-save"></div> */}
             </Button>
           </div>
         </div>
