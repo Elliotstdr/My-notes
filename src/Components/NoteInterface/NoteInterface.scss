@@ -1,13 +1,12 @@
 @use "src/index.scss" as c;
 
 .sheetinterface__notes__note {
-  height: 25rem;
   border-radius: 16px;
   text-align: left;
   position: relative;
   box-shadow: 6px 5px 15px -10px rgba(0, 0, 0, 0.4);
   background-color: white !important;
-  width: 48%;
+  width: 48.5%;
   .note__top {
     display: flex;
     justify-content: space-between;
@@ -35,8 +34,10 @@
     }
   }
   .note__content {
-    height: 19rem;
-    padding: 0.5rem 1rem;
+    min-height: 3rem;
+    max-height: 19rem;
+    padding: 0.5rem 1rem 0 1rem;
+    margin-bottom: 1rem;
     overflow: auto;
     p {
       margin: 0.5rem 0;
