@@ -35,7 +35,7 @@ const NavBar = () => {
         return false
       })
       return {
-        key: key,
+        key: key as number,
         id: page.id,
         label: page.label,
         icon: logoNames.includes(page.label.toLowerCase())
