@@ -3,6 +3,7 @@ interface childNode {
   label?: string,
   data?: string,
   children?: any,
+  page?: Page | string
 }
 
 interface Page {
@@ -25,4 +26,9 @@ interface Sheet {
   page: Page,
   icon?: string,
   order?: number,
+}
+
+type FetchResponse = {
+  data: any,
+  error: any
 }

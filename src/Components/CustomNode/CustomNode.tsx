@@ -1,12 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import "./CustomNode.scss"
 import { Menu } from "primereact/menu";
 import { TreeNode } from 'primereact/treenode';
-import { editPageList, getDefaultNode, handleDuplicates, useOutsideAlerter } from '../../Services/api';
-import axios from 'axios';
+import { fetchDelete, fetchPost, fetchPut, handleDuplicates, useOutsideAlerter } from '../../Services/api';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import InputAndButton from '../../Utils/InputAndButton/InputAndButton';
 import ValidationDialog from '../../Utils/ValidationDialog/ValidationDialog';
 
 interface Props {
@@ -14,10 +12,8 @@ interface Props {
 }
 const CustomNode = (props: Props) => {
   const [showMenu, setShowMenu] = useState<boolean>(false)
-  const [isModifyingTitle, setIsModifyingTitle] = useState<boolean>(false)
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
-  const [newTitle, setNewTitle] = useState<string>("")
-  const auth = useSelector((state: RootState) => state.auth);
+  const [newTitle, setNewTitle] = useState<string>(props.node.label ?? "")
   const data = useSelector((state: RootState) => state.data);
   const dispatch = useDispatch();
   const updateData = (value: Partial<DataState>) => {
@@ -27,12 +23,11 @@ const CustomNode = (props: Props) => {
 
   useOutsideAlerter(wrapperRef, setShowMenu);
 
+  useEffect(() => {
+    setNewTitle(props.node.label ?? "")
+  }, [props.node])
+
   const model = [
-    {
-      label: "Modifier le titre",
-      icon: "pi pi-pencil",
-      command: () => setIsModifyingTitle(!isModifyingTitle)
-    },
     {
       label: "Supprimer la page",
       icon: "pi pi-trash",
@@ -45,73 +40,83 @@ const CustomNode = (props: Props) => {
     }
   ]
 
-  const putPage = () => {
-    if (newTitle === "" || !data.pages) return
+  const putPage = async () => {
+    if (newTitle === "" || !data.pages || !props.node.id) return
 
     const body: Page = { label: handleDuplicates(newTitle, data.pages) }
-    axios
-      .put(`${process.env.REACT_APP_BASE_URL}/page/${props.node.id}`, body, auth.header)
-      .then((res) => {
-        if (data.pages && props.node.id) {
-          const newPageList: Array<Page> = editPageList(data.pages, props.node.id, res.data.page)
-          updateData({
-            pages: newPageList,
-          })
-        }
-      })
-      .catch((err) => console.log(err))
+    const response = await fetchPut(`/page/${props.node.id}`, body)
+    if (response.error) return
+
+    updateData({
+      pages: data.pages.map((page) =>
+        page.id === props.node.id ? { ...page, label: response.data.page.label } : page
+      ),
+    });
   };
 
-  const createNewSheet = () => {
+  const putSheet = async () => {
+    const currentSheet = data.sheets?.find((sheet: Sheet) => sheet.id === data.selectedNode.id)
+    if (!data.selectedNode || newTitle === "" || !currentSheet || !data.sheets) return
+
+    const body = {
+      label: handleDuplicates(newTitle, data.sheets.filter((x) => x.page.id === currentSheet.page.id)),
+    }
+    const response = await fetchPut(`/sheet/${data.selectedNode?.id}`, body)
+    if (response.error) return
+
+    updateData({
+      sheets: data.sheets.map((sheet) =>
+        sheet.id === currentSheet?.id ? { ...sheet, label: response.data.sheet.label } : sheet
+      ),
+      selectedNode: response.data.sheet,
+    });
+  };
+
+  const createNewSheet = async () => {
     const sheetPage = data.pages?.find((page: Page) => page.id === props.node.id)
     if (!sheetPage || !data.sheets) return
 
     const body: Sheet = {
-      label: handleDuplicates("Index", data.sheets.filter((x) => x.page.id === sheetPage.id)),
+      label: handleDuplicates("New", data.sheets.filter((x) => x.page.id === sheetPage.id)),
       page: sheetPage
     }
+    const response = await fetchPost(`/sheet`, body)
+    if (response.error) return
 
-    axios
-      .post(`${process.env.REACT_APP_BASE_URL}/sheet`, body, auth.header)
-      .then((res) => {
-        if (data.sheets) {
-          updateData({
-            sheets: [...data.sheets, res.data.sheet],
-            selectedNode: { ...res.data.sheet }
-          })
-        }
-      })
-      .catch((err) => console.log(err))
+    updateData({
+      sheets: [...data.sheets, response.data.sheet],
+      selectedNode: { ...response.data.sheet }
+    })
   };
 
-  const deletePage = () => {
-    axios
-      .delete(`${process.env.REACT_APP_BASE_URL}/page/${props.node.id}`, auth.header)
-      .then(() => {
-        if (data.pages && props.node.id) {
-          updateData({
-            pages: data.pages.filter((page: Page) => page.id !== props.node.id),
-            selectedNode: getDefaultNode(data.pages)
-          })
-        }
-      })
-      .catch((err) => console.log(err))
+  const deletePage = async () => {
+    if (!data.pages || !props.node.id) return
+
+    const response = await fetchDelete(`/page/${props.node.id}`)
+    if (response.error) return
+
+    updateData({
+      pages: data.pages.filter((page: Page) => page.id !== props.node.id),
+      selectedNode: { children: true }
+    })
   }
 
   return (
     <div className="customNode">
       <span className={`customNode__label ${props.node.id === data.selectedNode.id && "selected"}`}>
-        {isModifyingTitle ?
-          (
-            <InputAndButton
-              setIsModifying={setIsModifyingTitle}
-              setNewString={setNewTitle}
-              onValid={putPage}
-              width='7rem'
-            ></InputAndButton>
-          ) : (
-            <span>{props.node.label}</span>
-          )}
+        <input
+          className='input__edit page'
+          value={newTitle}
+          onChange={(e) => setNewTitle(e.target.value)}
+          onBlur={() => {
+            if (props.node.label === newTitle) return
+            if (props.node.children) {
+              putPage()
+            } else {
+              putSheet()
+            }
+          }}
+        ></input>
       </span>
       {props.node.children &&
         <div

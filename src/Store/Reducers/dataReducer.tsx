@@ -4,6 +4,7 @@ const INITIAL_STATE: DataState = {
   notes: null,
   toast: null,
   selectedNode: {},
+  expandedKeys: {}
 };
 
 const dataReducer = (state = INITIAL_STATE, action: any): DataState => {

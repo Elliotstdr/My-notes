@@ -1,12 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import "./NoteInterface.scss"
 import { Editor } from "primereact/editor";
-import { Button } from "primereact/button";
-import { Menu } from "primereact/menu";
-import InputAndButton from '../../Utils/InputAndButton/InputAndButton';
 import ValidationDialog from '../../Utils/ValidationDialog/ValidationDialog';
-import axios from 'axios';
-import { editNoteList, successToast, useOutsideAlerter } from '../../Services/api';
+import { fetchDelete, fetchPut, successToast } from '../../Services/api';
 import { useSelector, useDispatch } from "react-redux";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -18,68 +14,62 @@ interface Props {
 }
 
 const NoteInterface = (props: Props) => {
-  const [isModifyingTitle, setIsModifyingTitle] = useState<boolean>(false)
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
-  const [showMenu, setShowMenu] = useState<boolean>(false)
-  const [newTitle, setNewTitle] = useState<string>("")
+  const [newTitle, setNewTitle] = useState<string>(props.note.label)
   const [newContent, setNewContent] = useState<string>("")
   const [idModifyingNote, setIdModifyingNote] = useState<string | undefined>("");
-  const wrapperRef = useRef(null);
-  const auth = useSelector((state: RootState) => state.auth);
   const data = useSelector((state: RootState) => state.data);
   const dispatch = useDispatch();
   const updateData = (value: Partial<DataState>) => {
     dispatch({ type: "UPDATE_DATA", value });
   };
 
-  useOutsideAlerter(wrapperRef, setShowMenu);
+  useEffect(() => { setNewTitle(props.note.label) }, [props.note])
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     scrollRef.current && scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const modifyTitle = () => {
-    if (newTitle === "") return
-    const body: Note = { ...props.note, label: newTitle }
-    axios
-      .put(`${process.env.REACT_APP_BASE_URL}/note/${props.note.id}`, body, auth.header)
-      .then((res) => {
-        if (data.notes) {
-          const newNoteList: Array<Note> = editNoteList(data.notes, props.note, res.data.note)
-          updateData({ notes: newNoteList })
-        }
-      })
-      .catch((err) => console.log(err))
+  const modifyTitle = async () => {
+    if (newTitle === "" || !data.notes) return
+
+    const body = { label: newTitle }
+    const response = await fetchPut(`/note/${props.note.id}`, body)
+    if (response.error) return
+
+    updateData({
+      notes: data.notes.map((note) =>
+        note.id === props.note?.id
+          ? { ...note, label: response.data.note.label, content: response.data.note.content }
+          : note
+      ),
+    });
   }
 
-  const modifyContent = () => {
-    if (newContent === "") return
-    const body: Note = { ...props.note, content: newContent }
+  const modifyContent = async () => {
+    if (newContent === "" || !data.notes) return
 
-    axios
-      .put(`${process.env.REACT_APP_BASE_URL}/note/${props.note.id}`, body, auth.header)
-      .then((res) => {
-        if (data.notes) {
-          const newNoteList: Array<Note> = editNoteList(data.notes, props.note, res.data.note)
-          updateData({ notes: newNoteList })
-        }
-      })
-      .catch((err) => console.log(err))
+    const body = { content: newContent }
+    const response = await fetchPut(`/note/${props.note.id}`, body)
+    if (response.error) return
+
+    updateData({
+      notes: data.notes.map((note) =>
+        note.id === props.note?.id
+          ? { ...note, label: response.data.note.label, content: response.data.note.content }
+          : note
+      ),
+    });
   }
 
-  const deleteNote = () => {
+  const deleteNote = async () => {
     if (!data.notes) return
-    axios
-      .delete(`${process.env.REACT_APP_BASE_URL}/note/${props.note.id}`, auth.header)
-      .then(() => {
-        if (data.notes) {
-          updateData({
-            notes: data.notes.filter((note: Note) => note.id !== props.note?.id)
-          })
-        }
-      })
-      .catch((err) => console.log(err))
+
+    const response = await fetchDelete(`/note/${props.note.id}`)
+    if (response.error) return
+
+    updateData({ notes: data.notes.filter((note: Note) => note.id !== props.note?.id) })
   }
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -90,46 +80,28 @@ const NoteInterface = (props: Props) => {
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const model = [
-    {
-      label: "Modifier le titre",
-      icon: "pi pi-pencil",
-      command: () => setIsModifyingTitle(!isModifyingTitle)
-    },
-    {
-      label: "Modifier le contenu",
-      icon: "pi pi-book",
-      command: () => setIdModifyingNote(props.note.id)
-    },
-    {
-      label: "Supprimer la note",
-      icon: "pi pi-trash",
-      command: () => setIsDeleting(true)
-    }
-  ]
-
   useEffect(() => {
     const codeBoxes = document.querySelectorAll('pre.ql-syntax');
 
     codeBoxes.forEach((x) => {
       const existingDiv = x.querySelector('.clip.pi.pi-copy');
 
-      if (!existingDiv) {
-        const element = document.createElement('div');
-        element.className = 'clip pi pi-copy';
-        element.addEventListener('click', (e) => {
-          e.stopPropagation();
+      if (existingDiv) return
 
-          const preElement = (e.target as HTMLElement).closest('pre.ql-syntax');
-          if (preElement) {
-            const textToCopy = preElement.textContent || '';
-            navigator.clipboard.writeText(textToCopy)
-            data.toast && successToast("Élément copié avec succès", data.toast);
-          }
-        });
+      const element = document.createElement('div');
+      element.className = 'clip pi pi-copy';
+      element.addEventListener('click', (e) => {
+        e.stopPropagation();
 
-        x.appendChild(element);
-      }
+        const preElement = (e.target as HTMLElement).closest('pre.ql-syntax');
+        if (!preElement) return
+
+        const textToCopy = preElement.textContent || '';
+        navigator.clipboard.writeText(textToCopy)
+        data.toast && successToast("Élément copié avec succès");
+      });
+
+      x.appendChild(element);
     });
     // eslint-disable-next-line
   }, [props.note.content]);
@@ -145,24 +117,14 @@ const NoteInterface = (props: Props) => {
       <div className='dragndrop' {...listeners} style={{ cursor: "move", height: "10px" }}></div>
       <div className="note__top">
         <div className="note__top__title">
-          {isModifyingTitle ?
-            (
-              <InputAndButton
-                setIsModifying={setIsModifyingTitle}
-                setNewString={setNewTitle}
-                onValid={modifyTitle}
-              ></InputAndButton>
-            ) : (
-              <h3>{props.note.label}</h3>
-            )}
+          <input
+            className='input__edit note'
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onBlur={() => props.note.label !== newTitle && modifyTitle()}
+          ></input>
         </div>
-        <div
-          className='pi pi-ellipsis-v note__top__edit'
-          onClick={() => setShowMenu(!showMenu)}
-          ref={wrapperRef}
-        >
-          {showMenu && <Menu model={model}></Menu>}
-        </div>
+        <div className='pi pi-trash' onClick={() => setIsDeleting(true)}></div>
       </div>
       <div
         className="note__content"
@@ -186,13 +148,11 @@ const NoteInterface = (props: Props) => {
               value={props.note ? props.note.content : "Undefined"}
               onTextChange={(e) => setNewContent(e.htmlValue ? e.htmlValue : "")}
               modules={modules}
+              onBlur={() => {
+                setIdModifyingNote("");
+                modifyContent()
+              }}
             ></Editor>
-            <Button className="save" onClick={() => {
-              setIdModifyingNote("");
-              modifyContent()
-            }}>
-              Save
-            </Button>
           </div>
         </div>
       )}

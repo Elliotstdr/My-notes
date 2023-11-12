@@ -1,75 +1,47 @@
 import React, { Key, useEffect, useMemo, useState } from 'react';
 import "./SheetInterface.scss"
-import ToolBar from '../ToolBar/ToolBar';
-import axios from 'axios';
-import { editSheetList, getDefaultNode, handleDuplicates, successToast } from '../../Services/api';
+import { fetchDelete, fetchPost, successToast } from '../../Services/api';
 import NoteInterface from '../NoteInterface/NoteInterface';
 import { useSelector, useDispatch } from "react-redux";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
+import { Button } from 'primereact/button';
+import ValidationDialog from '../../Utils/ValidationDialog/ValidationDialog';
 
 const SheetInterface = () => {
-  const [newTitle, setNewTitle] = useState<string>("");
-  const [newNoteName, setNewNoteName] = useState<string>("");
+  const [deleteElement, setDeleteElement] = useState<boolean>(false);
   const [notesList, setNotesListe] = useState<Array<Note>>([])
-  const auth = useSelector((state: RootState) => state.auth);
   const data = useSelector((state: RootState) => state.data);
   const dispatch = useDispatch();
   const updateData = (value: Partial<DataState>) => {
     dispatch({ type: "UPDATE_DATA", value });
   };
 
-  const putSheet = () => {
-    const currentSheet = data.sheets?.find((sheet: Sheet) => sheet.id === data.selectedNode.id)
-    if (!data.selectedNode || newTitle === "" || !currentSheet || !data.sheets) return
-
-    const body: Sheet = {
-      label: handleDuplicates(newTitle, data.sheets.filter((x) => x.page.id === currentSheet.page.id)),
-      page: currentSheet.page
-    }
-    axios
-      .put(`${process.env.REACT_APP_BASE_URL}/sheet/${data.selectedNode?.id}`, body, auth.header)
-      .then((res) => {
-        if (data.sheets) {
-          const newSheetList: Array<Sheet> = editSheetList(data.sheets, currentSheet, res.data.sheet)
-          updateData({
-            sheets: newSheetList,
-            selectedNode: res.data.sheet
-          })
-        }
-      })
-      .catch((err) => console.log(err))
-  };
-
-  const createNewNote = () => {
+  const createNewNote = async () => {
     const sheetPage = data.sheets?.find((sheet: Sheet) => sheet.id === data.selectedNode.id)
-    if (!data.selectedNode || newNoteName === "" || !sheetPage) return
+    if (!data.selectedNode || !sheetPage || !data.notes) return
 
-    const body: Note = { label: newNoteName, content: "", sheet: sheetPage }
-    axios
-      .post(`${process.env.REACT_APP_BASE_URL}/note`, body, auth.header)
-      .then((res) => {
-        if (data.notes) {
-          updateData({ notes: [...data.notes, res.data.note] })
-        }
-      })
-      .catch((err) => console.log(err))
+    const body: Note = { label: "New", content: "", sheet: sheetPage }
+    const response = await fetchPost(`/note`, body)
+    if (response.error) return
+
+    updateData({ notes: [...data.notes, response.data.note] })
+    const interval = setInterval(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })
+      clearInterval(interval)
+    }, 100)
   };
 
-  const deleteSheet = () => {
-    if (!data.selectedNode) return
+  const deleteSheet = async () => {
+    if (!data.selectedNode || !data.sheets) return
 
-    axios
-      .delete(`${process.env.REACT_APP_BASE_URL}/sheet/${data.selectedNode.id}`, auth.header)
-      .then(() => {
-        if (data.sheets) {
-          updateData({
-            sheets: data.sheets.filter((sheet: Sheet) => sheet.id !== data.selectedNode?.id),
-            selectedNode: data.pages ? getDefaultNode(data.pages) : {}
-          })
-        }
-      })
-      .catch((err) => console.log(err))
+    const response = await fetchDelete(`/sheet/${data.selectedNode.id}`)
+    if (response.error) return
+
+    updateData({
+      sheets: data.sheets.filter((sheet: Sheet) => sheet.id !== data.selectedNode?.id),
+      selectedNode: data.pages ? { children: true } : {}
+    })
   }
 
   useEffect(() => {
@@ -116,36 +88,63 @@ const SheetInterface = () => {
     }
   };
 
-  const updateNotesOrder = (notes: Array<Note>) => {
-    axios
-      .post(`${process.env.REACT_APP_BASE_URL}/note/reorder`, notes, auth.header)
-      .then((res) => {
-        const otherNotes = data.notes?.filter((note: Note) =>
-          !res.data.notes.some((x: Sheet) => x.id === note.id
-          ))
-        if (otherNotes) {
-          updateData({ notes: [...otherNotes, ...res.data.notes] })
-        } else {
-          updateData({ notes: res.data.notes })
-        }
-        data.toast && successToast("Ordre des notes mis à jour", data.toast)
-      })
-      .catch((err) => console.log(err))
+  const updateNotesOrder = async (notes: Array<Note>) => {
+    const response = await fetchPost('/note/reorder', notes)
+    if (response.error) return
+
+    const otherNotes = data.notes?.filter((note: Note) =>
+      !response.data.notes.some((x: Sheet) => x.id === note.id
+      ))
+    const updatedNotes = otherNotes
+      ? [...otherNotes, ...response.data.notes]
+      : response.data.notes;
+    updateData({ notes: updatedNotes });
+    data.toast && successToast("Ordre des notes mis à jour")
+  }
+
+  const findPageOfSheet = () => {
+    let page = undefined
+    const node: any = data.selectedNode
+
+    if (!node?.page || !data.pages) return
+
+    if (typeof node.page === "string") {
+      page = data.pages.find((page) => page.id === node.page)
+    } else if (node.page.id) {
+      page = data.pages.find((page) => page.id === node.page.id)
+    }
+
+    if (page) return page.label + "/ "
+
+    return
   }
 
   return (
     <div className="sheetinterface">
       <div className="sheetinterface__top">
+        <div className='page__label__sheet'>{findPageOfSheet()}</div>
         <h1>{data.selectedNode?.label}</h1>
-        <ToolBar
-          setNewTitle={setNewTitle}
-          setNewElementName={setNewNoteName}
-          putFunction={putSheet}
-          createNewElement={createNewNote}
-          deleteFunction={deleteSheet}
-          names={["Supprimer la feuille", "Créer une note"]}
-          element='sheet'
-        ></ToolBar>
+        <div className="toolbar">
+          {/* Delete element */}
+          <Button onClick={() => setDeleteElement(true)} className="main__button">
+            <div className="pi pi-trash" style={{ marginRight: "0.5rem" }}></div>
+            {"Supprimer la feuille"}
+          </Button>
+          {/* Create Element */}
+          <Button onClick={() => createNewNote()} className="main__button">
+            <div className="pi pi-plus" style={{ marginRight: "0.5rem" }}></div>
+            {"Créer une note"}
+          </Button>
+          {/* Delete Element Dialog */}
+          {deleteElement && (
+            <ValidationDialog
+              isVisible={deleteElement}
+              setIsVisible={setDeleteElement}
+              deleteFunction={deleteSheet}
+              element={'feuille'}
+            ></ValidationDialog>
+          )}
+        </div>
       </div>
       <div className="sheetinterface__notes">
         <DndContext

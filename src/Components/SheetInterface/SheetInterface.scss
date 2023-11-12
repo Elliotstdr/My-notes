@@ -1,3 +1,5 @@
+@use "src/index.scss" as c;
+
 .sheetinterface {
   width: 100%;
   display: flex;
@@ -15,12 +17,47 @@
     padding: 0.75rem 0rem 0.75rem 1rem;
     display: flex;
     justify-content: flex-start;
+    align-items: center;
     margin-top: 1rem;
     background-color: white;
     border-radius: 10px;
     width: 95%;
     box-shadow: 5px 7px 10px 0px rgba(0, 0, 0, 0.1);
+    h1 {
+      margin: 0;
+    }
   }
+}
+
+.input__edit {
+  border: none;
+  // border-bottom: 1px solid c.$main-color;
+  padding: 0.25rem;
+  color: #226597 !important;
+  width: 10rem;
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  &.sheet {
+    font-family: Randome, sans-serif;
+    font-size: 1.5rem;
+    padding-bottom: 0;
+  }
+  &.note {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  &.page {
+    width: 100% !important;
+    color: #495057 !important;
+    background-color: c.$fond;
+  }
+}
+.page__label__sheet {
+  color: #226597 !important;
+  font-family: Randome, sans-serif;
+  font-size: 1.2rem;
 }
 
 @media (max-width: 1050px) {

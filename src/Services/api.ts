@@ -1,5 +1,6 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { useState, useEffect } from "react";
+import { store } from "../Store/store";
 
 export const useFetchGet = (url: string, token: string | null = null) => {
   const [data, setData] = useState<any>(null);
@@ -26,38 +27,54 @@ export const useFetchGet = (url: string, token: string | null = null) => {
   return { data, error, loaded };
 };
 
-export const editPageList = (arrayElement: Array<Page>, currentPageId: string, newElement: Page) => {
-  const tempPages: Array<Page> | null = [...arrayElement]
-  tempPages.forEach((page: Page) => { 
-    if (page.id === currentPageId) { 
-      page.label = newElement.label 
-    } 
-  })
-  return tempPages
-}
+export const fetchDelete = async (url: string): Promise<FetchResponse> => {
+  let data = null;
+  let error = null;
+  const token = store.getState().auth.token;
+  
+  await axios
+    .delete(`${process.env.REACT_APP_BASE_URL}${url}`, { 
+      headers: { Authorization: `Bearer ${token}` } 
+    })
+    .then((response) => (data = response.data))
+    .catch((e) => (error = e));
+  return { data, error };
+};
 
-export const editSheetList = (arrayElement: Array<Sheet>, currentSheet: Sheet | undefined, newElement: Sheet) => {
-  const tempSheets: Array<Sheet> | null = [...arrayElement]
-  tempSheets.forEach((sheet: Sheet) => { 
-    if (sheet.id === currentSheet?.id) { 
-      sheet.label = newElement.label 
-    } 
-  })
-  return tempSheets
-}
+export const fetchPost = async (url: string, payload: any,): Promise<FetchResponse> => {
+  let data: any = null;
+  let error: any = null;
+  const token = store.getState().auth.token;
 
-export const editNoteList = (arrayElement: Array<Note>, currentNote: Note | undefined, newElement: Note) => {
-  const tempNotes: Array<Note> | null = [...arrayElement]
-  tempNotes.forEach((note: Note) => { 
-    if (note.id === currentNote?.id) { 
-      note.label = newElement.label;
-      note.content = newElement.content
-    }
-  })
-  return tempNotes
-}
+  await axios
+    .post(`${process.env.REACT_APP_BASE_URL}${url}`, payload, {
+      headers: { Authorization: `Bearer ${token}` } 
+    })
+    .then((response: AxiosResponse) => {
+      data = response.data
+    })
+    .catch((e: AxiosError) => (error = e));
+  return { data, error };
+};
 
-export const successToast = (message: string, ref: React.MutableRefObject<any>, summary = "Succès") => {
+export const fetchPut = async (url: string, payload: any, ): Promise<FetchResponse> => {
+  let data = null;
+  let error: any = null;
+  const token = store.getState().auth.token
+
+  await axios
+    .put(`${process.env.REACT_APP_BASE_URL}${url}`, payload, {
+      headers: { Authorization: `Bearer ${token}` } 
+    })
+    .then((response: AxiosResponse) => {
+      data = response.data
+    })
+    .catch((e: AxiosError) => (error = e));
+  return { data, error };
+};
+
+export const successToast = (message: string, summary = "Succès") => {
+  const ref: any = store.getState().data.toast
   ref.current.show({
     severity: "success",
     summary: `${summary} : `,
@@ -66,7 +83,8 @@ export const successToast = (message: string, ref: React.MutableRefObject<any>, 
   });
 };
 
-export const errorToast = (message: string, ref: React.MutableRefObject<any>, summary = "Erreur") => {
+export const errorToast = (message: string, summary = "Erreur") => {
+  const ref: any = store.getState().data.toast
   ref.current.show({
     severity: "error",
     summary: `${summary} : `,
@@ -74,18 +92,6 @@ export const errorToast = (message: string, ref: React.MutableRefObject<any>, su
     life: 3000,
   });
 };
-
-export const getDefaultNode = (pages: Array<Page>) => {
-  return {
-    ...pages.sort((a: Page, b: Page) => {
-      if (b.order !== undefined && a.order !== undefined) {
-        return a.order - b.order
-      }
-      return 0
-    })[0],
-    children: true
-  }
-}
 
 export const useOutsideAlerter = (ref: any, command: React.Dispatch<React.SetStateAction<boolean>>) => {
   useEffect(() => {
@@ -104,6 +110,11 @@ export const useOutsideAlerter = (ref: any, command: React.Dispatch<React.SetSta
   }, [ref])
 };
 
+/**
+ * @param title titre de l'élément
+ * @param data  liste des éléments
+ * @returns un nouveau titre que ne soit pas déjà dans data
+ */
 export const handleDuplicates = (title: string, data: Array<Page|Sheet>) => {
   let titreUnique = title;
   let numSuffix = 1;
@@ -115,4 +126,14 @@ export const handleDuplicates = (title: string, data: Array<Page|Sheet>) => {
   }
 
   return titreUnique;
+}
+
+export function customSortASC<T extends Page[]|Sheet[]|Note[]> (data: T): T {
+  data.sort((a, b) => {
+    if (a.order === undefined && b.order === undefined) { return 0 }
+    if (a.order === undefined) { return -1 }
+    if (b.order === undefined) { return 1 }
+    return a.order - b.order;
+  })
+  return data
 }

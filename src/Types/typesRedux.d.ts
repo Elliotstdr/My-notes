@@ -8,7 +8,10 @@ interface DataState {
   sheets: Array<Sheet> | null,
   notes: Array<Note> | null,
   toast: React.MutableRefObject<null> | null,
-  selectedNode: childNode
+  selectedNode: childNode,
+  expandedKeys: {
+    [key: string]: boolean
+  }
 }
 
 interface AuthState {

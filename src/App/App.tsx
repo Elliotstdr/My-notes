@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import './App.scss';
-import NavBar from '../../Components/NavBar/NavBar';
-import { getDefaultNode, useFetchGet } from '../../Services/api';
-import SheetInterface from '../../Components/SheetInterface/SheetInterface';
+import NavBar from '../Components/NavBar/NavBar';
+import { useFetchGet } from '../Services/api';
+import SheetInterface from '../Components/SheetInterface/SheetInterface';
 import { useSelector, useDispatch } from "react-redux";
-import Loader from '../../Utils/Loader/loader';
+import Loader from '../Utils/Loader/loader';
 import { Toast } from "primereact/toast";
-import Login from '../../Components/Login/Login';
+import Login from '../Components/Login/Login';
 
 const App = () => {
   const auth = useSelector((state: RootState) => state.auth);
@@ -54,7 +54,7 @@ const App = () => {
         sheets: sheetData.data,
         notes: noteData.data,
         selectedNode: Object.keys(data.selectedNode).length === 0
-          ? getDefaultNode(pageData.data)
+          ? { children: true }
           : data.selectedNode
       })
     }

@@ -9,28 +9,17 @@
   width: 48.5%;
   .note__top {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    margin: 0 1.5rem;
     &__title {
       display: flex;
       align-items: center;
-      margin: 1.5rem 0.5rem 1rem 1.5rem;
-      h3 {
-        margin: 0;
-        color: c.$main-color !important;
-      }
+      margin: 1.5rem 0.5rem 1rem 0rem;
     }
-    &__edit {
-      position: relative;
-      color: c.$main-color;
+    .pi-trash {
+      color: rgb(204, 54, 54);
       cursor: pointer;
-      margin-right: 1rem;
-      .p-menu {
-        z-index: 1000;
-        position: absolute;
-        width: 13.5rem;
-        right: 0;
-      }
     }
   }
   .note__content {
@@ -75,7 +64,7 @@
     flex-direction: column;
     pointer-events: auto;
     max-height: 90%;
-    max-width: 60%;
+    width: 60%;
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     border: 0 none;
@@ -85,16 +74,6 @@
         background-color: white;
         min-height: 15rem;
         border-radius: 6px 6px 0 0;
-      }
-    }
-    .save {
-      display: flex;
-      justify-content: center;
-      background-color: white !important;
-      border-radius: 0 0 6px 6px;
-      &:hover {
-        background-color: green !important;
-        color: white !important;
       }
     }
   }

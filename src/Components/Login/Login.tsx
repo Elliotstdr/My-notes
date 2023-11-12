@@ -44,7 +44,7 @@ const Login = () => {
           header: { headers: { Authorization: `Bearer ${res.data.token}` } }
         })
       )
-      .catch(() => datas.toast && errorToast("L'authentification a échoué", datas.toast))
+      .catch(() => datas.toast && errorToast("L'authentification a échoué"))
       .finally(() => setIsLoging(false));
   };
 
