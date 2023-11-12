@@ -1,6 +1,6 @@
 import React, { Key, useEffect, useMemo, useState } from 'react';
 import "./SheetInterface.scss"
-import { fetchDelete, fetchPost, successToast } from '../../Services/api';
+import { fetchDelete, fetchPost, fetchPut, handleDuplicates, successToast } from '../../Services/api';
 import NoteInterface from '../NoteInterface/NoteInterface';
 import { useSelector, useDispatch } from "react-redux";
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -16,6 +16,11 @@ const SheetInterface = () => {
   const updateData = (value: Partial<DataState>) => {
     dispatch({ type: "UPDATE_DATA", value });
   };
+  const [newTitle, setNewTitle] = useState<string>(data.selectedNode.label ?? "")
+
+  useEffect(() => {
+    setNewTitle(data.selectedNode.label ?? "")
+  }, [data.selectedNode])
 
   const createNewNote = async () => {
     const sheetPage = data.sheets?.find((sheet: Sheet) => sheet.id === data.selectedNode.id)
@@ -43,6 +48,24 @@ const SheetInterface = () => {
       selectedNode: data.pages ? { children: true } : {}
     })
   }
+
+  const putSheet = async () => {
+    const currentSheet = data.sheets?.find((sheet: Sheet) => sheet.id === data.selectedNode.id)
+    if (!data.selectedNode || newTitle === "" || !currentSheet || !data.sheets) return
+
+    const body = {
+      label: handleDuplicates(newTitle, data.sheets.filter((x) => x.page.id === currentSheet.page.id)),
+    }
+    const response = await fetchPut(`/sheet/${data.selectedNode?.id}`, body)
+    if (response.error) return
+
+    updateData({
+      sheets: data.sheets.map((sheet) =>
+        sheet.id === currentSheet?.id ? { ...sheet, label: response.data.sheet.label } : sheet
+      ),
+      selectedNode: response.data.sheet,
+    });
+  };
 
   useEffect(() => {
     data.notes && setNotesListe(data.notes
@@ -122,8 +145,18 @@ const SheetInterface = () => {
   return (
     <div className="sheetinterface">
       <div className="sheetinterface__top">
-        <div className='page__label__sheet'>{findPageOfSheet()}</div>
-        <h1>{data.selectedNode?.label}</h1>
+        <div className="ariane">
+          <div className='page__label__sheet'>{findPageOfSheet()}</div>
+          <input
+            className='input__edit sheet'
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onBlur={() => {
+              if (data.selectedNode.label === newTitle) return
+              putSheet()
+            }}
+          ></input>
+        </div>
         <div className="toolbar">
           {/* Delete element */}
           <Button onClick={() => setDeleteElement(true)} className="main__button">

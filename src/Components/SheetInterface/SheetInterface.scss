@@ -23,8 +23,9 @@
     border-radius: 10px;
     width: 95%;
     box-shadow: 5px 7px 10px 0px rgba(0, 0, 0, 0.1);
-    h1 {
-      margin: 0;
+    .ariane {
+      display: flex;
+      align-items: baseline;
     }
   }
 }
@@ -58,6 +59,7 @@
   color: #226597 !important;
   font-family: Randome, sans-serif;
   font-size: 1.2rem;
+  cursor: default;
 }
 
 @media (max-width: 1050px) {
