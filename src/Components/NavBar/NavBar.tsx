@@ -53,14 +53,14 @@ const NavBar = () => {
     setTitleValue("")
 
     const body: Page = { label: handleDuplicates(titleValue, data.pages) }
-    const resPage = await fetchPost(`${process.env.REACT_APP_BASE_URL}/page`, body)
+    const resPage = await fetchPost("/page", body)
     if (resPage.error) return
 
     const subBody: Sheet = {
       label: "Index",
       page: resPage.data.page
     }
-    const resSheet = await fetchPost(`${process.env.REACT_APP_BASE_URL}/sheet`, subBody)
+    const resSheet = await fetchPost("/sheet", subBody)
     if (resSheet.error) return
 
     updateData({
